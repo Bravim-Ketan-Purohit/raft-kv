@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [RelWithDebInfo]
+        sanitizer: ["", "address,undefined", "thread"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            ${{ matrix.sanitizer && format('-DRAFTKV_SANITIZE={0}', matrix.sanitizer) || '' }}
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --timeout 300
+
+  property-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Property tests (250 seeds)
+        run: ctest --test-dir build -R property --output-on-failure --timeout 600
