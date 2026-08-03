@@ -1,0 +1,41 @@
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- Secrets / local config ---
+.env
+.env.*
+!.env.example
+*.pem
+secrets/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- C++ / CMake ---
+build/
+cmake-build*/
+*.o
+*.a
+*.so
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+Testing/
+
+# --- local build instruction, reference only, never committed ---
+# INSTRUCTION-SET.md is the paste-ready build prompt for an autonomous coding session.
+# It is deliberately untracked: it describes how this repo gets built, which is not part
+# of what the repo ships. The canonical copy lives outside every repo, in Draft 2/.
+INSTRUCTION-SET.md
+
+# --- Node / web ---
+web/node_modules/
+web/dist/
+
+# --- Runtime data ---
+/tmp/raftkv/
