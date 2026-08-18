@@ -47,7 +47,7 @@ public:
     bool running() const { return running_.load(); }
 
 private:
-    NodeId self_id_;
+    [[maybe_unused]] NodeId self_id_;
     std::vector<NodeConfig> cluster_config_;
     std::atomic<bool> running_{false};
 

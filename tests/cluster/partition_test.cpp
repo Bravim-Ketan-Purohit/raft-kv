@@ -89,7 +89,7 @@ TEST(PartitionTest, FiveNodeMinorityPartition) {
     SimCluster cluster(5, 42);
     ASSERT_TRUE(cluster.wait_for_leader(5000));
 
-    NodeId lid = cluster.leader().value();
+    [[maybe_unused]] NodeId lid = cluster.leader().value();
     auto ids = cluster.node_ids();
 
     // Partition nodes 4 and 5 from the rest

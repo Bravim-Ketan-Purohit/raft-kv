@@ -103,11 +103,13 @@ SimCluster::SimCluster(size_t num_nodes, uint64_t seed)
         raft->set_election_timeout(150); // Faster for tests
         raft->set_heartbeat_interval(50);
 
-        NodeState ns;
+        // NodeState holds a MemTable, which is non-copyable and (because it
+        // declares a destructor) non-movable. Construct it in place rather
+        // than moving a temporary in.
+        auto& ns = nodes_[id];
         ns.raft = std::move(raft);
         ns.alive = true;
         ns.paused = false;
-        nodes_.emplace(id, std::move(ns));
     }
 }
 
@@ -248,12 +250,10 @@ void SimCluster::restart(NodeId node) {
     it->second.alive = true;
     it->second.paused = false;
 
-    // Re-apply committed entries to memtable
-    for (const auto& entry : state.log) {
-        // Only apply if it was previously committed
-        // For simplicity in restart, we replay all — the actual commit index
-        // will be re-established by the cluster
-    }
+    // NOTE: committed entries are intentionally NOT replayed into the memtable
+    // here. A restarted node re-derives its applied state from the leader via
+    // AppendEntries once it rejoins, so the memtable refills through the normal
+    // apply path. (Restart-from-WAL replay is exercised in the Wal tests.)
 }
 
 void SimCluster::pause(NodeId node) {

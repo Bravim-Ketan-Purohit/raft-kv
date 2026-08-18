@@ -6,9 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Compiler warnings
-add_compile_options(-Wall -Wextra -Werror)
-
 # Sanitizer support
 set(RAFTKV_SANITIZE "" CACHE STRING "Sanitizers to enable (e.g. thread, address,undefined)")
 if(RAFTKV_SANITIZE)
@@ -31,6 +28,10 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 include(GoogleTest)
+
+# Compiler warnings -- applied AFTER FetchContent so third-party sources
+# (googletest) are not compiled with -Werror. Our code still is.
+add_compile_options(-Wall -Wextra -Werror)
 
 # Core library
 add_library(raftkv_core STATIC

@@ -300,10 +300,8 @@ Output RaftNode::handle_vote_request(NodeId from, const VoteRequest& req, Millis
     // Grant vote if we haven't voted for someone else in this term,
     // and the candidate's log is at least as up-to-date as ours
     bool can_vote = (!voted_for_.has_value() || voted_for_.value() == req.candidate_id);
-    bool log_ok = !log_.is_up_to_date(req.last_log_term, req.last_log_index);
-
-    // log_ok: candidate's log is at least as up-to-date as ours
-    // We need: candidate's (lastLogTerm, lastLogIndex) >= ours
+    // Candidate's log must be at least as up-to-date as ours:
+    // compare last term first, then last index.
     Term my_last_term = log_.last_term();
     LogIndex my_last_index = log_.last_index();
     bool candidate_up_to_date = (req.last_log_term > my_last_term) ||
